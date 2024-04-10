@@ -16,10 +16,8 @@ const characters = ref({});
 </script>
 
 <template>
-  <div v-for="character in characters.data.results">
-    <img :src="`${character.thumbnail.path}/standard_large.${character.thumbnail.extension}`" alt="">
-    <p>{{ character.name }}</p>
-  </div>
+  <RouterView>
+  </RouterView>
 </template>
 
 <style scoped></style>
