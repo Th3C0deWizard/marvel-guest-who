@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import IconClose from "./IconClose.vue";
+
 const props = defineProps<{
   show: boolean;
 }>();
@@ -6,15 +8,14 @@ const props = defineProps<{
 const emit = defineEmits<{
   (e: "onClose"): void;
 }>();
-
 </script>
 
 <template>
   <Transition>
-    <main class="container" v-if="show">
+    <main class="modal-container" v-if="show">
       <section class="container">
         <div class="container">
-          <button @click="$emit('onClose')">Cerrar</button>
+          <button @click="$emit('onClose')"><IconClose /></button>
         </div>
         <slot></slot>
       </section>
@@ -23,23 +24,25 @@ const emit = defineEmits<{
 </template>
 
 <style scoped>
-main.container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  position: absolute;
-  background-color: #00000066;
-  width: 100dvw;
-  height: 100dvh;
+.modal-container {
   position: fixed;
   top: 0;
   left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2));
+  backdrop-filter: blur(10px);
+  gap: 5rem;
 }
 
 section.container {
   display: flex;
   flex-direction: column;
-  background-color: #00001f;
+  background-color: #ffffff;
   padding: 0.5rem;
   border-radius: 2rem;
 }
@@ -50,14 +53,11 @@ div.container {
   padding: 0.2rem;
 
   button {
-    background-color: red;
     border: none;
-    border-radius: 2rem;
+    background-color: transparent;
     padding: 0.5rem;
     cursor: pointer;
-    color: black;
-    font-family: inherit;
-    font-size: 1.1rem;
+    color: #e62429;
   }
 }
 

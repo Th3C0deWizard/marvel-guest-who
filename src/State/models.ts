@@ -6,3 +6,19 @@ export interface SimpleCharacter {
     extension: string;
   };
 }
+
+export interface Character extends SimpleCharacter {
+  description: string;
+  comics: {
+    name: string;
+  }[];
+  series: {
+    name: string;
+  }[];
+  stories: {
+    name: string;
+  }[];
+  events: {
+    name: string;
+  }[];
+}
