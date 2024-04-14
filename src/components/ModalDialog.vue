@@ -3,6 +3,7 @@ import IconClose from "./IconClose.vue";
 
 const props = defineProps<{
   show: boolean;
+  noClose: { type: Boolean; default: false };
 }>();
 
 const emit = defineEmits<{
@@ -14,9 +15,9 @@ const emit = defineEmits<{
   <Transition>
     <main class="modal-container" v-if="show">
       <section class="container">
-        <div class="container">
-          <button @click="$emit('onClose')"><IconClose /></button>
-        </div>
+        <button v-if="!noClose" @click="$emit('onClose')" class="close">
+          <IconClose />
+        </button>
         <slot></slot>
       </section>
     </main>
@@ -45,20 +46,24 @@ section.container {
   background-color: #ffffff;
   padding: 0.5rem;
   border-radius: 2rem;
+  max-height: 90%;
+  overflow-y: auto;
 }
 
 div.container {
   display: flex;
   justify-content: right;
   padding: 0.2rem;
+}
 
-  button {
-    border: none;
-    background-color: transparent;
-    padding: 0.5rem;
-    cursor: pointer;
-    color: #e62429;
-  }
+.close {
+  display: flex;
+  justify-content: right;
+  border: none;
+  background-color: transparent;
+  padding: 0.5rem;
+  cursor: pointer;
+  color: #e62429;
 }
 
 .v-enter-active,

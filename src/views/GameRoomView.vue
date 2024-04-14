@@ -166,9 +166,9 @@ const sendReady = () => {
         </div>
       </Transition>
     </section>
-    <ModalDialog :show="ready" @onClose="">
+    <ModalDialog :show="ready" :noClose="true">
       <div class="modal-content">
-        <h1>Waiting for the other player</h1>
+        <h2>Waiting for the other player</h2>
       </div>
     </ModalDialog>
   </main>
@@ -276,20 +276,18 @@ h1 {
   gap: 3rem;
 }
 
+h2 {
+  font-size: 1.2rem;
+  text-transform: uppercase;
+  font-weight: 900;
+}
+
 .info-select {
   height: auto;
 }
 
 .modal-content {
   color: black;
-  position: absolute;
-  top: 45%;
-  left: 32%;
-  border-radius: 1rem;
-  background-color: white;
-  padding-top: 1rem;
-  padding-left: 1rem;
-  padding-right: 1rem;
 }
 
 .v-enter-active,
