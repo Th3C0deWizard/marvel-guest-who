@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { ChatMessageType } from "../State/models.ts"
+import type { ChatMessageType } from "../State/models.ts";
 defineProps<ChatMessageType>();
 </script>
 
@@ -12,16 +12,18 @@ defineProps<ChatMessageType>();
 <style scoped>
 article {
   padding: 0.5rem;
-  font-size: 1.2rem;
+  font-size: 1.1rem;
+  border-radius: 0.5rem;
+  color: white;
 }
 
 .its-me {
   margin-left: auto;
-  background-color: gray;
+  background-color: #f43138;
 }
 
 .its-not-me {
   margin-right: auto;
-  background-color: violet;
+  background-color: #646060;
 }
 </style>

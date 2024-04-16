@@ -47,6 +47,7 @@ section.container {
   padding: 0.5rem;
   border-radius: 2rem;
   max-height: 90%;
+  max-width: 90%;
   overflow-y: auto;
 }
 

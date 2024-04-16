@@ -8,7 +8,6 @@ defineProps<{
 }>();
 
 const emit = defineEmits(["closeAlertEmit"]);
-
 </script>
 
 <template>
@@ -29,17 +28,18 @@ const emit = defineEmits(["closeAlertEmit"]);
 <style scoped>
 .alert {
   position: fixed;
-  top: 4rem;
+  top: 1rem;
   right: 1rem;
   border-radius: 12px;
   background: #fff;
   padding: 1rem 2rem;
-  box-shadow: 0 6px 20px -5px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 6px 20px -5px rgba(0, 0, 0, 0.5);
   overflow: hidden;
   display: flex;
   height: 60px;
   margin: 0;
   color: black;
+  z-index: 1000;
 }
 
 .alert-content {
@@ -74,7 +74,7 @@ const emit = defineEmits(["closeAlertEmit"]);
 }
 
 .check {
-  color: #e62429;
+  color: #f43138;
 }
 
 .progress {
@@ -92,8 +92,7 @@ const emit = defineEmits(["closeAlertEmit"]);
   right: 0;
   height: 100%;
   width: 100%;
-  background-color: #e62429;
-
+  background-color: #f43138;
 }
 
 .progress.active:before {

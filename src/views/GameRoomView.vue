@@ -76,13 +76,22 @@ const sendReady = () => {
       <Transition>
         <div v-if="!loading" class="choose-char">
           <section class="characters-container">
-            <article class="character" v-for="{ id, name, thumbnail } in characters"
-              @click="selectCharacter({ id, name, thumbnail })" :key="id" :id="id.toString()">
+            <article
+              class="character"
+              v-for="{ id, name, thumbnail } in characters"
+              @click="selectCharacter({ id, name, thumbnail })"
+              :key="id"
+              :id="id.toString()"
+            >
               <figure>
-                <img :src="thumbnail.path +
-                  '/portrait_fantastic.' +
-                  thumbnail.extension
-                  " :alt="name" />
+                <img
+                  :src="
+                    thumbnail.path +
+                    '/portrait_fantastic.' +
+                    thumbnail.extension
+                  "
+                  :alt="name"
+                />
               </figure>
               <div class="info-character">
                 <p>{{ id }}</p>
@@ -93,11 +102,16 @@ const sendReady = () => {
           <section class="selected-container">
             <article class="character">
               <figure>
-                <img :src="selectedChar
-                  ? `${selectedChar.thumbnail.path}/portrait_uncanny.${selectedChar.thumbnail.extension}`
-                  : 'http://i.annihil.us/u/prod/marvel/i/mg/b/40/image_not_available/portrait_uncanny.jpg'
-                  " :alt="selectedChar ? selectedChar.name : 'No character selected'
-    " />
+                <img
+                  :src="
+                    selectedChar
+                      ? `${selectedChar.thumbnail.path}/portrait_uncanny.${selectedChar.thumbnail.extension}`
+                      : 'http://i.annihil.us/u/prod/marvel/i/mg/b/40/image_not_available/portrait_uncanny.jpg'
+                  "
+                  :alt="
+                    selectedChar ? selectedChar.name : 'No character selected'
+                  "
+                />
               </figure>
               <div class="info-character info-select">
                 <p>{{ selectedChar ? selectedChar.id : "No character" }}</p>
@@ -108,39 +122,39 @@ const sendReady = () => {
                   <p>
                     {{
                       selectedChar.description === ""
-                      ? "No description available"
-                      : selectedChar.description
+                        ? "No description available"
+                        : selectedChar.description
                     }}
                   </p>
                   <p>
                     {{
                       selectedChar.comics.length > 0
-                      ? selectedChar.comics.length
-                      : "No"
+                        ? selectedChar.comics.length
+                        : "No"
                     }}
                     comics
                   </p>
                   <p>
                     {{
                       selectedChar.series.length > 0
-                      ? selectedChar.series.length
-                      : "No"
+                        ? selectedChar.series.length
+                        : "No"
                     }}
                     series
                   </p>
                   <p>
                     {{
                       selectedChar.stories.length > 0
-                      ? selectedChar.stories.length
-                      : "No"
+                        ? selectedChar.stories.length
+                        : "No"
                     }}
                     stories
                   </p>
                   <p>
                     {{
                       selectedChar.events.length > 0
-                      ? selectedChar.events.length
-                      : "No"
+                        ? selectedChar.events.length
+                        : "No"
                     }}
                     events
                   </p>
@@ -167,6 +181,7 @@ const sendReady = () => {
   padding: 2rem 9rem;
   background: white;
   color: black;
+  min-height: 100vh;
 }
 
 header {
@@ -198,6 +213,7 @@ h1 {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
   gap: 1rem;
+  overflow-y: auto;
 }
 
 .character {
@@ -209,6 +225,8 @@ h1 {
     position: relative;
     overflow: hidden;
     z-index: 40;
+    border-top-left-radius: 0.5rem;
+    border-top-right-radius: 0.5rem;
   }
 
   figure::after {
@@ -236,18 +254,22 @@ h1 {
   position: relative;
   z-index: 30;
   height: 6rem;
+  border-bottom-left-radius: 0.5rem;
+  border-bottom-right-radius: 0.5rem;
 }
 
 .info-character::before {
   content: "";
-  background-color: #e62429;
+  background-color: transparent;
   width: 100%;
   height: 100%;
   position: absolute;
   left: 0;
   bottom: 100%;
   z-index: -1;
-  transition: 0.3s;
+  transition: color 0.01s ease, transform 0.4s;
+  border-bottom-left-radius: 0.5rem;
+  border-bottom-right-radius: 0.5rem;
 }
 
 .character:hover img {
@@ -255,6 +277,7 @@ h1 {
 }
 
 .character:hover .info-character::before {
+  background-color: #e62429;
   transform: translate3d(0, 100%, 0);
 }
 

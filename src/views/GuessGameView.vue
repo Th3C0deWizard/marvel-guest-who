@@ -1,20 +1,25 @@
 <script setup lang="ts">
 import { reactive, ref, Transition } from "vue";
-import { type SimpleCharacter, type Character, type ChatMessageType } from "../State/models";
+import {
+  type SimpleCharacter,
+  type Character,
+  type ChatMessageType,
+} from "../State/models";
 import { store } from "../State/store";
 import Loading from "@/components/Loading.vue";
 import ModalDialog from "@/components/ModalDialog.vue";
 import IconInfo from "@/components/IconInfo.vue";
 import IconGuess from "@/components/IconGuess.vue";
 import IconCrossOut from "@/components/IconCrossOut.vue";
-import Chat from "@/components/Chat.vue"
-import Alert from "@/components/Alert.vue"
+import Chat from "@/components/Chat.vue";
+import Alert from "@/components/Alert.vue";
 
 const characters = ref<Array<SimpleCharacter>>([]);
 const infoChar = ref<Character | undefined>();
 const selectedChar = ref<number>();
 const loading = ref(true);
 const openModal = ref(false);
+const openWinModal = ref(false);
 const chatActive = ref(false);
 const chatHistory = ref<Array<ChatMessageType>>([]);
 const myTurn = ref(false);
@@ -24,7 +29,6 @@ const alert = reactive({
   show: false,
   text: "",
 });
-const iWon = ref(false);
 
 store.socket?.on(
   "startGuess",
@@ -36,45 +40,48 @@ store.socket?.on(
   }
 );
 
-store.socket?.on(
-  "yourTurn",
-  (failGuess: boolean) => {
-    myTurn.value = true;
-    const text = !failGuess ? "You can give it a try and make a guess, or ask your opponent for clues" : "Your opponent is a loser so it has failed the guess try";
-    openAlert("Its your turn!", text);
-  }
-);
+store.socket?.on("yourTurn", (failGuess: boolean) => {
+  myTurn.value = true;
+  const text = !failGuess
+    ? "You can give it a try and make a guess, or ask your opponent for clues"
+    : "Your opponent is a loser so it has failed the guess try";
+  openAlert("Its your turn!", text);
+});
 
 store.socket?.on(
-  "opponentAnswer", (chatHistoryData: Array<ChatMessageType>) => {
+  "opponentAnswer",
+  (chatHistoryData: Array<ChatMessageType>) => {
     chatHistory.value = chatHistoryData;
-    openAlert("You have got the clues you need to guess!", "Wait until your next turn");
+    openAlert(
+      "You have got the clues you need to guess!",
+      "Wait until your next turn"
+    );
   }
 );
 
-store.socket?.on(
-  "playerAsk", (chatHistoryData: Array<ChatMessageType>) => {
-    answering.value = true;
-    chatHistory.value = chatHistoryData
-    openAlert("You have been asked for clues!", "You have to answer your opponet question");
-  }
-);
+store.socket?.on("playerAsk", (chatHistoryData: Array<ChatMessageType>) => {
+  answering.value = true;
+  chatHistory.value = chatHistoryData;
+  openAlert(
+    "You have been asked for clues!",
+    "You have to answer your opponet question"
+  );
+});
 
-store.socket?.on(
-  "guessResult", (assert: boolean) => {
-    if (assert) {
-      iWon.value = true;
-      openAlert("YOU WON!", "YOU WON! A TI TE VOY A DAR DOS BOLITAS, PICOS Y CHAO");
-      store.socket?.disconnect();
-    } else {
-      openAlert("YOU MISS IT!", "YOU FAIL YOUR GUESS, LOOSER");
-    }
+store.socket?.on("guessResult", (assert: boolean) => {
+  if (assert) {
+    openWinModal.value = true;
+    alert.title = "YOU WON!";
+    alert.text = "YOU WON! A TI TE VOY A DAR DOS BOLITAS, PICOS Y CHAO";
+  } else {
+    openAlert("YOU MISS IT!", "YOU FAIL YOUR GUESS, LOOSER");
   }
-);
+});
 
 store.socket?.on("youLose", () => {
-  openAlert("You Lose", "YOU ARE LOSER, A TI NO TE VOY A DAR BOLITAS");
-  store.socket?.disconnect();
+  openWinModal.value = true;
+  alert.title = "YOU LOSE";
+  alert.text = "YOU ARE LOSER, A TI NO TE VOY A DAR BOLITAS";
 });
 
 const infoModal = async (charID: number) => {
@@ -121,7 +128,7 @@ const openAlert = (title: string, text: string) => {
   setTimeout(() => {
     alert.show = false;
   }, 5000);
-}
+};
 
 const closeAlert = () => {
   alert.show = false;
@@ -132,24 +139,23 @@ const guessAction = (id: number) => {
   myTurn.value = false;
   const actionData = { action: "guess", characterId: id };
   store.socket?.emit("playerAction", actionData);
-}
+};
 
 const chatAction = (message: string) => {
   if (myTurn.value) {
     myTurn.value = false;
     chatHistory.value.push({ message, itsMe: true });
-    console.log(chatHistory.value)
+    console.log(chatHistory.value);
     const actionData = { action: "ask", message };
     store.socket?.emit("playerAction", actionData);
   } else if (answering.value) {
     answering.value = false;
     chatHistory.value.push({ message, itsMe: true });
-    store.socket?.emit("playerAnswer", message)
+    store.socket?.emit("playerAnswer", message);
   } else {
     console.log("No haremos nada al respecto ._.");
   }
-}
-
+};
 </script>
 
 <template>
@@ -161,19 +167,32 @@ const chatAction = (message: string) => {
       <Transition>
         <div v-if="!loading" class="board-char">
           <section class="characters-container">
-            <article class="character" v-for="{ id, name, thumbnail } in characters" :key="id" :id="id.toString()">
+            <article
+              class="character"
+              v-for="{ id, name, thumbnail } in characters"
+              :key="id"
+              :id="id.toString()"
+            >
               <figure>
-                <img :src="thumbnail.path +
-                  '/portrait_fantastic.' +
-                  thumbnail.extension
-                  " :alt="name" />
+                <img
+                  :src="
+                    thumbnail.path +
+                    '/portrait_fantastic.' +
+                    thumbnail.extension
+                  "
+                  :alt="name"
+                />
               </figure>
               <div class="info-character">
                 <p>{{ id }}</p>
                 <p>{{ name }}</p>
               </div>
               <div class="btn-actions">
-                <button @click="guessAction(id)" :disabled="myTurn === false" title="Guess">
+                <button
+                  @click="guessAction(id)"
+                  :disabled="myTurn === false"
+                  title="Guess"
+                >
                   <IconGuess />
                 </button>
                 <button title="Info about character" @click="infoModal(id)">
@@ -185,7 +204,11 @@ const chatAction = (message: string) => {
               </div>
             </article>
           </section>
-          <Chat :active="myTurn || answering" :chatHistory @onChat="chatAction" />
+          <Chat
+            :active="myTurn || answering"
+            :chatHistory
+            @onChat="chatAction"
+          />
         </div>
       </Transition>
     </section>
@@ -194,44 +217,70 @@ const chatAction = (message: string) => {
         <div>
           <h1>{{ infoChar?.name }}</h1>
           <figure>
-            <img :src="infoChar?.thumbnail.path +
-              '/portrait_fantastic.' +
-              infoChar?.thumbnail.extension
-              " :alt="infoChar?.name" />
+            <img
+              :src="
+                infoChar?.thumbnail.path +
+                '/portrait_fantastic.' +
+                infoChar?.thumbnail.extension
+              "
+              :alt="infoChar?.name"
+            />
           </figure>
           <p>
             {{
               infoChar?.description
-              ? infoChar?.description
-              : "Desscription no available"
+                ? infoChar?.description
+                : "Desscription no available"
             }}
           </p>
         </div>
         <div>
           <h2>Comics</h2>
           <ul>
-            <li v-for="comic in infoChar?.comics" :key="comic">{{ comic }}</li>
+            <li v-for="comic in infoChar?.comics" :key="comic">
+              {{ comic }}
+            </li>
           </ul>
           <h2>Series</h2>
           <ul>
-            <li v-for="serie in infoChar?.series" :key="serie">{{ serie }}</li>
+            <li v-for="serie in infoChar?.series" :key="serie">
+              {{ serie }}
+            </li>
           </ul>
         </div>
         <div>
           <h2>Stories</h2>
           <ul>
-            <li v-for="story in infoChar?.stories" :key="story">{{ story }}</li>
+            <li v-for="story in infoChar?.stories" :key="story">
+              {{ story }}
+            </li>
           </ul>
         </div>
         <div>
           <h2>Events</h2>
           <ul>
-            <li v-for="event in infoChar?.events" :key="event">{{ event }}</li>
+            <li v-for="event in infoChar?.events" :key="event">
+              {{ event }}
+            </li>
           </ul>
         </div>
       </div>
     </ModalDialog>
-    <Alert :title="alert.title" :text="alert.text" v-if="alert.show" @closeAlertEmit="closeAlert" />
+    <Transition>
+      <Alert
+        :title="alert.title"
+        :text="alert.text"
+        v-if="alert.show"
+        @closeAlertEmit="closeAlert"
+      />
+    </Transition>
+    <ModalDialog :show="openWinModal" :noClose="true">
+      <div class="modal-win-content">
+        <h1>{{ alert.title }}</h1>
+        <p>{{ alert.text }}</p>
+        <button @click="store.socket?.disconnect()">OK</button>
+      </div>
+    </ModalDialog>
   </main>
 </template>
 
@@ -242,6 +291,7 @@ const chatAction = (message: string) => {
   padding: 2rem 9rem;
   background: white;
   color: black;
+  height: 86.3vh;
 }
 
 header {
@@ -273,17 +323,20 @@ h1 {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
   gap: 1rem;
+  height: 80dvh;
+  overflow-y: auto;
 }
 
 .character {
   display: flex;
   flex-direction: column;
-  cursor: pointer;
 
   figure {
     position: relative;
     overflow: hidden;
     z-index: 40;
+    border-top-left-radius: 0.5rem;
+    border-top-right-radius: 0.5rem;
   }
 
   figure::after {
@@ -301,6 +354,7 @@ h1 {
     overflow: hidden;
     transition: 0.2s;
     width: 100%;
+    transition: 0.2s;
   }
 }
 
@@ -323,6 +377,12 @@ h1 {
   bottom: 100%;
   z-index: -1;
   transition: 0.3s;
+  border-bottom-left-radius: 0.5rem;
+  border-bottom-right-radius: 0.5rem;
+}
+
+.character:hover .info-character::before {
+  transform: translate3d(0, 100%, 0);
 }
 
 .cross-out {
@@ -343,15 +403,13 @@ h1 {
   transform: scale(1.05);
 }
 
-.character:hover .info-character::before {
-  transform: translate3d(0, 100%, 0);
-}
-
 .btn-actions {
   display: flex;
   justify-content: space-around;
   background-color: #202020;
   padding: 0.5rem;
+  border-bottom-left-radius: 0.5rem;
+  border-bottom-right-radius: 0.5rem;
 }
 
 .modal-content {
@@ -364,6 +422,35 @@ h1 {
   color: black;
 }
 
+button {
+  padding: 0.5rem;
+  border: none;
+  background-color: #f43138;
+  color: white;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+button:disabled {
+  background-color: #911a1e;
+  cursor: not-allowed;
+}
+
+button:hover {
+  scale: 1.05;
+}
+
+.modal-win-content {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  color: black;
+}
+
 .v-enter-active,
 .v-leave-active {
   transition: opacity 0.5s ease;
@@ -372,14 +459,5 @@ h1 {
 .v-enter-from,
 .v-leave-to {
   opacity: 0;
-}
-
-button {
-  padding: 0.5rem;
-  border: none;
-  background-color: #e62429;
-  color: white;
-  border-radius: 0.5rem;
-  cursor: pointer;
 }
 </style>

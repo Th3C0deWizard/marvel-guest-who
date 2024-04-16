@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import type { ChatMessageType } from "../State/models.ts"
-import { ref } from "vue"
-import ChatMessage from "./ChatMessage.vue"
+import type { ChatMessageType } from "../State/models.ts";
+import { ref } from "vue";
+import ChatMessage from "./ChatMessage.vue";
 const props = defineProps<{
   active: boolean;
   chatHistory: Array<ChatMessageType>;
@@ -9,17 +9,14 @@ const props = defineProps<{
 
 const message = ref("");
 
-const emit = defineEmits<
-  {
-    (e: "onChat", message: string): void
-  }
->();
+const emit = defineEmits<{
+  (e: "onChat", message: string): void;
+}>();
 
 const onSend = () => {
-  emit("onChat", message.value)
+  emit("onChat", message.value);
   message.value = "";
-}
-
+};
 </script>
 
 <template>
@@ -39,14 +36,18 @@ const onSend = () => {
 .chat {
   margin-left: 2rem;
   width: 100%;
-  height: 90dvh;
+  height: 75dvh;
+  border-radius: 0.5rem;
 }
 
 .name-container {
   display: flex;
-  background-color: #e62429;
+  background-color: #f43138;
   justify-content: center;
   padding: 0.2;
+  color: white;
+  border-top-left-radius: 0.5rem;
+  border-top-right-radius: 0.5rem;
 }
 
 .chat-container {
@@ -54,7 +55,7 @@ const onSend = () => {
   flex-direction: column;
   justify-content: flex-end;
   padding: 1rem;
-  gap: 2rem;
+  gap: 1rem;
   height: 90%;
   background-color: #202020;
   overflow-y: auto;
@@ -65,6 +66,8 @@ const onSend = () => {
   justify-content: space-between;
   padding: 0.5rem;
   background-color: #202020;
+  border-bottom-left-radius: 0.5rem;
+  border-bottom-right-radius: 0.5rem;
 }
 
 input {
@@ -79,9 +82,23 @@ input {
 button {
   padding: 0.5rem;
   border: none;
-  background-color: #e62429;
+  background-color: #f43138;
   color: white;
   border-radius: 0.5rem;
   cursor: pointer;
+  transition: 0.3s;
+}
+
+button:disabled {
+  background-color: #911a1e;
+  cursor: not-allowed;
+}
+
+button:hover {
+  scale: 1.05;
+}
+
+input:disabled {
+  cursor: not-allowed;
 }
 </style>
