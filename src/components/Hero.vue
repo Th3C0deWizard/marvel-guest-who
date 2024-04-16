@@ -15,7 +15,7 @@ const closePlayModal = () => {
 <template>
   <section id="hero">
     <h1>marvel guest who</h1>
-    <p>This is an online multiplayer guest who game about UMC!</p>
+    <p>This is an online multiplayer guess who game about UMC!</p>
     <Button @click="openPlayModal">Play now</Button>
     <div></div>
   </section>

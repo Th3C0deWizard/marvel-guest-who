@@ -8,7 +8,7 @@ import router from "@/router";
 const matched = ref(false);
 
 function connect() {
-  const socket: Socket = io("ws://localhost:3000");
+  const socket: Socket = io("ws://190.248.212.126:3000");
   console.log("hola socket");
   socket.emit("match");
   socket.on("matched", () => {

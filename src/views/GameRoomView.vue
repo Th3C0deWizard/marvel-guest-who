@@ -56,7 +56,7 @@ const sendReady = () => {
     return;
   }
   ready.value = true;
-  store.socket?.emit("playerReady");
+  store.socket?.emit("playerReady", selectedChar.value.id);
   store.socket?.on("goToGuessGame", (roomID: string) => {
     router.push({
       name: "GuessGame",
@@ -76,22 +76,13 @@ const sendReady = () => {
       <Transition>
         <div v-if="!loading" class="choose-char">
           <section class="characters-container">
-            <article
-              class="character"
-              v-for="{ id, name, thumbnail } in characters"
-              @click="selectCharacter({ id, name, thumbnail })"
-              :key="id"
-              :id="id.toString()"
-            >
+            <article class="character" v-for="{ id, name, thumbnail } in characters"
+              @click="selectCharacter({ id, name, thumbnail })" :key="id" :id="id.toString()">
               <figure>
-                <img
-                  :src="
-                    thumbnail.path +
-                    '/portrait_fantastic.' +
-                    thumbnail.extension
-                  "
-                  :alt="name"
-                />
+                <img :src="thumbnail.path +
+                  '/portrait_fantastic.' +
+                  thumbnail.extension
+                  " :alt="name" />
               </figure>
               <div class="info-character">
                 <p>{{ id }}</p>
@@ -102,16 +93,11 @@ const sendReady = () => {
           <section class="selected-container">
             <article class="character">
               <figure>
-                <img
-                  :src="
-                    selectedChar
-                      ? `${selectedChar.thumbnail.path}/portrait_uncanny.${selectedChar.thumbnail.extension}`
-                      : 'http://i.annihil.us/u/prod/marvel/i/mg/b/40/image_not_available/portrait_uncanny.jpg'
-                  "
-                  :alt="
-                    selectedChar ? selectedChar.name : 'No character selected'
-                  "
-                />
+                <img :src="selectedChar
+                  ? `${selectedChar.thumbnail.path}/portrait_uncanny.${selectedChar.thumbnail.extension}`
+                  : 'http://i.annihil.us/u/prod/marvel/i/mg/b/40/image_not_available/portrait_uncanny.jpg'
+                  " :alt="selectedChar ? selectedChar.name : 'No character selected'
+    " />
               </figure>
               <div class="info-character info-select">
                 <p>{{ selectedChar ? selectedChar.id : "No character" }}</p>
@@ -122,39 +108,39 @@ const sendReady = () => {
                   <p>
                     {{
                       selectedChar.description === ""
-                        ? "No description available"
-                        : selectedChar.description
+                      ? "No description available"
+                      : selectedChar.description
                     }}
                   </p>
                   <p>
                     {{
                       selectedChar.comics.length > 0
-                        ? selectedChar.comics.length
-                        : "No"
+                      ? selectedChar.comics.length
+                      : "No"
                     }}
                     comics
                   </p>
                   <p>
                     {{
                       selectedChar.series.length > 0
-                        ? selectedChar.series.length
-                        : "No"
+                      ? selectedChar.series.length
+                      : "No"
                     }}
                     series
                   </p>
                   <p>
                     {{
                       selectedChar.stories.length > 0
-                        ? selectedChar.stories.length
-                        : "No"
+                      ? selectedChar.stories.length
+                      : "No"
                     }}
                     stories
                   </p>
                   <p>
                     {{
                       selectedChar.events.length > 0
-                        ? selectedChar.events.length
-                        : "No"
+                      ? selectedChar.events.length
+                      : "No"
                     }}
                     events
                   </p>
@@ -218,11 +204,13 @@ h1 {
   display: flex;
   flex-direction: column;
   cursor: pointer;
+
   figure {
     position: relative;
     overflow: hidden;
     z-index: 40;
   }
+
   figure::after {
     content: "";
     height: 4px;
@@ -233,6 +221,7 @@ h1 {
     bottom: 0;
     transition: 0.2s;
   }
+
   img {
     overflow: hidden;
     transition: 0.2s;

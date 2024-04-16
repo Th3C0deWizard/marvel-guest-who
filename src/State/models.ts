@@ -22,3 +22,8 @@ export interface Character extends SimpleCharacter {
     name: string;
   }[];
 }
+
+export interface ChatMessageType {
+  message: string;
+  itsMe: boolean;
+}

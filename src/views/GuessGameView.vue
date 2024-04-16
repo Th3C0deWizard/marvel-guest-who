@@ -1,18 +1,30 @@
 <script setup lang="ts">
-import { ref, Transition } from "vue";
-import type { SimpleCharacter, Character } from "../State/models";
+import { reactive, ref, Transition } from "vue";
+import { type SimpleCharacter, type Character, type ChatMessageType } from "../State/models";
 import { store } from "../State/store";
 import Loading from "@/components/Loading.vue";
 import ModalDialog from "@/components/ModalDialog.vue";
 import IconInfo from "@/components/IconInfo.vue";
 import IconGuess from "@/components/IconGuess.vue";
 import IconCrossOut from "@/components/IconCrossOut.vue";
+import Chat from "@/components/Chat.vue"
+import Alert from "@/components/Alert.vue"
 
 const characters = ref<Array<SimpleCharacter>>([]);
 const infoChar = ref<Character | undefined>();
 const selectedChar = ref<number>();
 const loading = ref(true);
 const openModal = ref(false);
+const chatActive = ref(false);
+const chatHistory = ref<Array<ChatMessageType>>([]);
+const myTurn = ref(false);
+const answering = ref(false);
+const alert = reactive({
+  title: "",
+  show: false,
+  text: "",
+});
+const iWon = ref(false);
 
 store.socket?.on(
   "startGuess",
@@ -23,6 +35,47 @@ store.socket?.on(
     loading.value = false;
   }
 );
+
+store.socket?.on(
+  "yourTurn",
+  (failGuess: boolean) => {
+    myTurn.value = true;
+    const text = !failGuess ? "You can give it a try and make a guess, or ask your opponent for clues" : "Your opponent is a loser so it has failed the guess try";
+    openAlert("Its your turn!", text);
+  }
+);
+
+store.socket?.on(
+  "opponentAnswer", (chatHistoryData: Array<ChatMessageType>) => {
+    chatHistory.value = chatHistoryData;
+    openAlert("You have got the clues you need to guess!", "Wait until your next turn");
+  }
+);
+
+store.socket?.on(
+  "playerAsk", (chatHistoryData: Array<ChatMessageType>) => {
+    answering.value = true;
+    chatHistory.value = chatHistoryData
+    openAlert("You have been asked for clues!", "You have to answer your opponet question");
+  }
+);
+
+store.socket?.on(
+  "guessResult", (assert: boolean) => {
+    if (assert) {
+      iWon.value = true;
+      openAlert("YOU WON!", "YOU WON! A TI TE VOY A DAR DOS BOLITAS, PICOS Y CHAO");
+      store.socket?.disconnect();
+    } else {
+      openAlert("YOU MISS IT!", "YOU FAIL YOUR GUESS, LOOSER");
+    }
+  }
+);
+
+store.socket?.on("youLose", () => {
+  openAlert("You Lose", "YOU ARE LOSER, A TI NO TE VOY A DAR BOLITAS");
+  store.socket?.disconnect();
+});
 
 const infoModal = async (charID: number) => {
   const response = await fetch(
@@ -60,6 +113,43 @@ const crossOut = (charID: number) => {
 const closeModal = () => {
   openModal.value = false;
 };
+
+const openAlert = (title: string, text: string) => {
+  alert.title = title;
+  alert.text = text;
+  alert.show = true;
+  setTimeout(() => {
+    alert.show = false;
+  }, 5000);
+}
+
+const closeAlert = () => {
+  alert.show = false;
+};
+
+const guessAction = (id: number) => {
+  console.log(id);
+  myTurn.value = false;
+  const actionData = { action: "guess", characterId: id };
+  store.socket?.emit("playerAction", actionData);
+}
+
+const chatAction = (message: string) => {
+  if (myTurn.value) {
+    myTurn.value = false;
+    chatHistory.value.push({ message, itsMe: true });
+    console.log(chatHistory.value)
+    const actionData = { action: "ask", message };
+    store.socket?.emit("playerAction", actionData);
+  } else if (answering.value) {
+    answering.value = false;
+    chatHistory.value.push({ message, itsMe: true });
+    store.socket?.emit("playerAnswer", message)
+  } else {
+    console.log("No haremos nada al respecto ._.");
+  }
+}
+
 </script>
 
 <template>
@@ -71,28 +161,21 @@ const closeModal = () => {
       <Transition>
         <div v-if="!loading" class="board-char">
           <section class="characters-container">
-            <article
-              class="character"
-              v-for="{ id, name, thumbnail } in characters"
-              :key="id"
-              :id="id.toString()"
-            >
+            <article class="character" v-for="{ id, name, thumbnail } in characters" :key="id" :id="id.toString()">
               <figure>
-                <img
-                  :src="
-                    thumbnail.path +
-                    '/portrait_fantastic.' +
-                    thumbnail.extension
-                  "
-                  :alt="name"
-                />
+                <img :src="thumbnail.path +
+                  '/portrait_fantastic.' +
+                  thumbnail.extension
+                  " :alt="name" />
               </figure>
               <div class="info-character">
                 <p>{{ id }}</p>
                 <p>{{ name }}</p>
               </div>
               <div class="btn-actions">
-                <button title="Guess"><IconGuess /></button>
+                <button @click="guessAction(id)" :disabled="myTurn === false" title="Guess">
+                  <IconGuess />
+                </button>
                 <button title="Info about character" @click="infoModal(id)">
                   <IconInfo />
                 </button>
@@ -102,14 +185,7 @@ const closeModal = () => {
               </div>
             </article>
           </section>
-          <section class="chat">
-            <span class="name-container">Chat</span>
-            <div class="chat-container"></div>
-            <div class="input-container">
-              <input type="text" />
-              <button>Send</button>
-            </div>
-          </section>
+          <Chat :active="myTurn || answering" :chatHistory @onChat="chatAction" />
         </div>
       </Transition>
     </section>
@@ -118,20 +194,16 @@ const closeModal = () => {
         <div>
           <h1>{{ infoChar?.name }}</h1>
           <figure>
-            <img
-              :src="
-                infoChar?.thumbnail.path +
-                '/portrait_fantastic.' +
-                infoChar?.thumbnail.extension
-              "
-              :alt="infoChar?.name"
-            />
+            <img :src="infoChar?.thumbnail.path +
+              '/portrait_fantastic.' +
+              infoChar?.thumbnail.extension
+              " :alt="infoChar?.name" />
           </figure>
           <p>
             {{
               infoChar?.description
-                ? infoChar?.description
-                : "Desscription no available"
+              ? infoChar?.description
+              : "Desscription no available"
             }}
           </p>
         </div>
@@ -159,6 +231,7 @@ const closeModal = () => {
         </div>
       </div>
     </ModalDialog>
+    <Alert :title="alert.title" :text="alert.text" v-if="alert.show" @closeAlertEmit="closeAlert" />
   </main>
 </template>
 
@@ -206,11 +279,13 @@ h1 {
   display: flex;
   flex-direction: column;
   cursor: pointer;
+
   figure {
     position: relative;
     overflow: hidden;
     z-index: 40;
   }
+
   figure::after {
     content: "";
     height: 4px;
@@ -221,6 +296,7 @@ h1 {
     bottom: 0;
     transition: 0.2s;
   }
+
   img {
     overflow: hidden;
     transition: 0.2s;
@@ -253,9 +329,11 @@ h1 {
   img {
     filter: grayscale(100%);
   }
+
   figure::after {
     background-color: #202020;
   }
+
   div::before {
     background-color: #202020;
   }
@@ -276,50 +354,6 @@ h1 {
   padding: 0.5rem;
 }
 
-.chat {
-  margin-left: 2rem;
-  width: 100%;
-  height: 90dvh;
-}
-
-.name-container {
-  display: flex;
-  background-color: #e62429;
-  justify-content: center;
-  padding: 0.2;
-}
-
-.chat-container {
-  height: 90%;
-  background-color: #202020;
-  overflow-y: auto;
-}
-
-.input-container {
-  display: flex;
-  justify-content: space-between;
-  padding: 0.5rem;
-  background-color: #202020;
-}
-
-input {
-  width: 80%;
-  padding: 0.5rem;
-  border: none;
-  background-color: white;
-  color: black;
-  border-radius: 0.5rem;
-}
-
-button {
-  padding: 0.5rem;
-  border: none;
-  background-color: #e62429;
-  color: white;
-  border-radius: 0.5rem;
-  cursor: pointer;
-}
-
 .modal-content {
   display: grid;
   grid-template-columns: 50% 50%;
@@ -338,5 +372,14 @@ button {
 .v-enter-from,
 .v-leave-to {
   opacity: 0;
+}
+
+button {
+  padding: 0.5rem;
+  border: none;
+  background-color: #e62429;
+  color: white;
+  border-radius: 0.5rem;
+  cursor: pointer;
 }
 </style>
