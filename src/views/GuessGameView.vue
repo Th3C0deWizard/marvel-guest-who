@@ -13,7 +13,10 @@ import IconGuess from "@/components/IconGuess.vue";
 import IconCrossOut from "@/components/IconCrossOut.vue";
 import Chat from "@/components/Chat.vue";
 import Alert from "@/components/Alert.vue";
+import CharacterBoard from "@/components/CharacterBoard.vue";
+import CharacterInfoModal from "@/components/CharacterInfoModal.vue";
 import IconChat from "@/components/IconChat.vue";
+import Button from "@/components/Button.vue";
 
 const characters = ref<Array<SimpleCharacter>>([]);
 const infoChar = ref<Character | undefined>();
@@ -73,7 +76,7 @@ store.socket?.on("guessResult", (assert: boolean) => {
   if (assert) {
     openWinModal.value = true;
     alert.title = "YOU WON!";
-    alert.text = "YOU WON! A TI TE VOY A DAR DOS BOLITAS, PICOS Y CHAO";
+    alert.text = "YOU ARE THE BEST GUESSER, CONGRATULATIONS!";
   } else {
     openAlert("YOU MISS IT!", "YOU FAIL YOUR GUESS, LOOSER");
   }
@@ -82,7 +85,7 @@ store.socket?.on("guessResult", (assert: boolean) => {
 store.socket?.on("youLose", () => {
   openWinModal.value = true;
   alert.title = "YOU LOSE";
-  alert.text = "YOU ARE LOSER, A TI NO TE VOY A DAR BOLITAS";
+  alert.text = "YOU ARE THE WORST GUESSER, YOU LOSE!";
 });
 
 const infoModal = async (charID: number) => {
@@ -170,107 +173,48 @@ const chatAction = (message: string) => {
       <h1>Character board</h1>
       <Loading v-if="loading" />
       <Transition>
-        <div v-if="!loading" class="board-char">
-          <section class="characters-container">
-            <article
-              class="character"
-              v-for="{ id, name, thumbnail } in characters"
-              :key="id"
-              :id="id.toString()"
-            >
-              <figure>
-                <img
-                  :src="
-                    thumbnail.path +
-                    '/portrait_fantastic.' +
-                    thumbnail.extension
-                  "
-                  :alt="name"
-                />
-              </figure>
-              <div class="info-character">
-                <p>{{ id }}</p>
-                <p>{{ name }}</p>
-              </div>
+        <section v-if="!loading" class="board-char">
+          <CharacterBoard :characters>
+            <template v-slot="{ id }">
               <div class="btn-actions">
-                <button
+                <Button
                   @click="guessAction(id)"
                   :disabled="myTurn === false"
                   title="Guess"
+                  fontSize="0.5rem"
                 >
                   <IconGuess />
-                </button>
-                <button title="Info about character" @click="infoModal(id)">
+                </Button>
+                <Button
+                  title="Info about character"
+                  @click="infoModal(id)"
+                  fontSize="0.5rem"
+                >
                   <IconInfo />
-                </button>
-                <button title="Cross out / highlight" @click="crossOut(id)">
+                </Button>
+                <Button
+                  title="Cross out / highlight"
+                  @click="crossOut(id)"
+                  fontSize="0.5rem"
+                >
                   <IconCrossOut />
-                </button>
+                </Button>
               </div>
-            </article>
-          </section>
+            </template>
+          </CharacterBoard>
           <Chat
             :active="myTurn || answering"
             :chatHistory
             @onChat="chatAction"
           />
-        </div>
+        </section>
       </Transition>
     </section>
-    <ModalDialog :show="openModal" @onClose="closeModal">
-      <div class="modal-content">
-        <div>
-          <h1>{{ infoChar?.name }}</h1>
-          <figure>
-            <img
-              :src="
-                infoChar?.thumbnail.path +
-                '/portrait_fantastic.' +
-                infoChar?.thumbnail.extension
-              "
-              :alt="infoChar?.name"
-            />
-          </figure>
-          <p>
-            {{
-              infoChar?.description
-                ? infoChar?.description
-                : "Desscription no available"
-            }}
-          </p>
-        </div>
-        <div>
-          <h2>Comics</h2>
-          <ul>
-            <li v-for="comic in infoChar?.comics" :key="comic">
-              {{ comic }}
-            </li>
-          </ul>
-          <h2>Series</h2>
-          <ul>
-            <li v-for="serie in infoChar?.series" :key="serie">
-              {{ serie }}
-            </li>
-          </ul>
-        </div>
-        <div>
-          <h2>Stories</h2>
-          <ul>
-            <li v-for="story in infoChar?.stories" :key="story">
-              {{ story }}
-            </li>
-          </ul>
-        </div>
-        <div>
-          <h2>Events</h2>
-          <ul>
-            <li v-for="event in infoChar?.events" :key="event">
-              {{ event }}
-            </li>
-          </ul>
-        </div>
-      </div>
-    </ModalDialog>
+    <CharacterInfoModal
+      :show="openModal"
+      :character="infoChar"
+      :onClose="closeModal"
+    />
     <Transition>
       <Alert
         :title="alert.title"
@@ -283,16 +227,18 @@ const chatAction = (message: string) => {
       <div class="modal-win-content">
         <h1>{{ alert.title }}</h1>
         <p>{{ alert.text }}</p>
-        <button @click="store.socket?.disconnect()">OK</button>
+        <Button @click="store.socket?.disconnect()" fontSize="1.5rem"
+          >OK</Button
+        >
       </div>
     </ModalDialog>
     <ModalDialog :show="showChat" @onClose="closeChat">
       <Chat :active="myTurn || answering" :chatHistory @onChat="chatAction" />
     </ModalDialog>
     <Transition>
-      <button class="btn-chat">
+      <Button class="btn-chat">
         <IconChat @click="showChat = !showChat" />
-      </button>
+      </Button>
     </Transition>
   </main>
 </template>
@@ -336,90 +282,6 @@ h1 {
   grid-template-columns: 70% 30%;
 }
 
-.characters-container {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-  gap: 1rem;
-  height: 80dvh;
-  overflow-y: auto;
-}
-
-.character {
-  display: flex;
-  flex-direction: column;
-
-  figure {
-    position: relative;
-    overflow: hidden;
-    z-index: 40;
-    border-top-left-radius: 0.5rem;
-    border-top-right-radius: 0.5rem;
-  }
-
-  figure::after {
-    content: "";
-    height: 4px;
-    background-color: #e62429;
-    width: 100%;
-    position: absolute;
-    left: 0;
-    bottom: 0;
-    transition: 0.2s;
-  }
-
-  img {
-    overflow: hidden;
-    transition: 0.2s;
-    width: 100%;
-    transition: 0.2s;
-  }
-}
-
-.info-character {
-  padding: 1rem 1.5rem;
-  background-color: #202020;
-  color: white;
-  position: relative;
-  z-index: 30;
-  height: 7rem;
-}
-
-.info-character::before {
-  content: "";
-  background-color: #e62429;
-  width: 100%;
-  height: 100%;
-  position: absolute;
-  left: 0;
-  bottom: 100%;
-  z-index: -1;
-  transition: 0.3s;
-  border-bottom-left-radius: 0.5rem;
-  border-bottom-right-radius: 0.5rem;
-}
-
-.character:hover .info-character::before {
-  transform: translate3d(0, 100%, 0);
-}
-
-.cross-out {
-  img {
-    filter: grayscale(100%);
-  }
-
-  figure::after {
-    background-color: #202020;
-  }
-
-  div::before {
-    background-color: #202020;
-  }
-}
-
-.character:hover img {
-  transform: scale(1.05);
-}
-
 .btn-actions {
   display: flex;
   justify-content: space-around;
@@ -439,25 +301,6 @@ h1 {
   color: black;
 }
 
-button {
-  padding: 0.5rem;
-  border: none;
-  background-color: #f43138;
-  color: white;
-  border-radius: 0.5rem;
-  cursor: pointer;
-  transition: 0.3s;
-}
-
-button:disabled {
-  background-color: #911a1e;
-  cursor: not-allowed;
-}
-
-button:hover {
-  scale: 1.05;
-}
-
 .modal-win-content {
   display: flex;
   flex-direction: column;
@@ -472,18 +315,14 @@ button:hover {
   position: fixed;
   bottom: 1rem;
   right: 1rem;
-  background-color: #f43138;
-  border: none;
   border-radius: 50%;
-  padding: 1rem;
-  cursor: pointer;
   transition: 0.3s;
   display: none;
   z-index: 100;
 }
 
 .btn-chat:hover {
-  scale: 1.05;
+  scale: 1.1;
 }
 
 @media (max-width: 900px) {
@@ -497,11 +336,14 @@ button:hover {
     display: flex;
     flex-direction: column;
   }
-  .board-char :nth-child(2) {
+  .board-char > .chat {
     display: none;
   }
   .btn-chat {
     display: block;
+  }
+  .btn-actions {
+    padding: 0;
   }
 }
 

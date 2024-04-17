@@ -6,11 +6,19 @@ import type { SimpleCharacter, Character } from "../State/models";
 import Button from "@/components/Button.vue";
 import ModalDialog from "@/components/ModalDialog.vue";
 import Loading from "@/components/Loading.vue";
+import CharacterBoard from "@/components/CharacterBoard.vue";
+import CharacterCard from "@/components/CharacterCard.vue";
+import IconClick from "@/components/IconClick.vue";
 
 const loading = ref(true);
 const characters = ref<Array<SimpleCharacter>>([]);
 const selectedChar = ref<Character | undefined>();
 const ready = ref(false);
+const showSelected = ref(false);
+
+const closeSelected = () => {
+  showSelected.value = false;
+};
 
 store.socket?.on("start", (charactersData: Array<SimpleCharacter>) => {
   characters.value = charactersData;
@@ -75,93 +83,15 @@ const sendReady = () => {
       <Loading v-if="loading" />
       <Transition>
         <div v-if="!loading" class="choose-char">
-          <section class="characters-container">
-            <article
-              class="character"
-              v-for="{ id, name, thumbnail } in characters"
-              @click="selectCharacter({ id, name, thumbnail })"
-              :key="id"
-              :id="id.toString()"
-            >
-              <figure>
-                <img
-                  :src="
-                    thumbnail.path +
-                    '/portrait_fantastic.' +
-                    thumbnail.extension
-                  "
-                  :alt="name"
-                />
-              </figure>
-              <div class="info-character">
-                <p>{{ id }}</p>
-                <p>{{ name }}</p>
-              </div>
-            </article>
-          </section>
+          <CharacterBoard
+            :characters
+            @onSelectChar="selectCharacter"
+          ></CharacterBoard>
           <section class="selected-container">
-            <article class="character">
-              <figure>
-                <img
-                  :src="
-                    selectedChar
-                      ? `${selectedChar.thumbnail.path}/portrait_uncanny.${selectedChar.thumbnail.extension}`
-                      : 'http://i.annihil.us/u/prod/marvel/i/mg/b/40/image_not_available/portrait_uncanny.jpg'
-                  "
-                  :alt="
-                    selectedChar ? selectedChar.name : 'No character selected'
-                  "
-                />
-              </figure>
-              <div class="info-character info-select">
-                <p>{{ selectedChar ? selectedChar.id : "No character" }}</p>
-                <div v-if="selectedChar !== undefined">
-                  <p>
-                    {{ selectedChar.name }}
-                  </p>
-                  <p>
-                    {{
-                      selectedChar.description === ""
-                        ? "No description available"
-                        : selectedChar.description
-                    }}
-                  </p>
-                  <p>
-                    {{
-                      selectedChar.comics.length > 0
-                        ? selectedChar.comics.length
-                        : "No"
-                    }}
-                    comics
-                  </p>
-                  <p>
-                    {{
-                      selectedChar.series.length > 0
-                        ? selectedChar.series.length
-                        : "No"
-                    }}
-                    series
-                  </p>
-                  <p>
-                    {{
-                      selectedChar.stories.length > 0
-                        ? selectedChar.stories.length
-                        : "No"
-                    }}
-                    stories
-                  </p>
-                  <p>
-                    {{
-                      selectedChar.events.length > 0
-                        ? selectedChar.events.length
-                        : "No"
-                    }}
-                    events
-                  </p>
-                </div>
-              </div>
-            </article>
-            <Button @click="sendReady" :disabled="ready">Im Ready</Button>
+            <CharacterCard :character="selectedChar"></CharacterCard>
+            <Button @click="sendReady" :disabled="ready || !selectedChar"
+              >Im Ready</Button
+            >
           </section>
         </div>
       </Transition>
@@ -171,6 +101,19 @@ const sendReady = () => {
         <h2>Waiting for the other player</h2>
       </div>
     </ModalDialog>
+    <ModalDialog :show="showSelected" @onClose="closeSelected">
+      <section class="selected-container">
+        <CharacterCard :character="selectedChar"></CharacterCard>
+        <Button @click="sendReady" :disabled="ready || !selectedChar"
+          >Im Ready</Button
+        >
+      </section>
+    </ModalDialog>
+    <Transition>
+      <Button class="btn-selected">
+        <IconClick @click="showSelected = !showSelected" />
+      </Button>
+    </Transition>
   </main>
 </template>
 
@@ -181,7 +124,7 @@ const sendReady = () => {
   padding: 2rem 9rem;
   background: white;
   color: black;
-  min-height: 100vh;
+  height: 86.3vh;
 }
 
 header {
@@ -204,98 +147,37 @@ h1 {
   margin-bottom: 1rem;
 }
 
-.choose-char {
-  display: grid;
-  grid-template-columns: 70% 30%;
-}
-
-.characters-container {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-  gap: 1rem;
-  overflow-y: auto;
-}
-
-.character {
-  display: flex;
-  flex-direction: column;
-  cursor: pointer;
-
-  figure {
-    position: relative;
-    overflow: hidden;
-    z-index: 40;
-    border-top-left-radius: 0.5rem;
-    border-top-right-radius: 0.5rem;
-  }
-
-  figure::after {
-    content: "";
-    height: 4px;
-    background-color: #e62429;
-    width: 100%;
-    position: absolute;
-    left: 0;
-    bottom: 0;
-    transition: 0.2s;
-  }
-
-  img {
-    overflow: hidden;
-    transition: 0.2s;
-    width: 100%;
-  }
-}
-
-.info-character {
-  padding: 1rem 1.5rem;
-  background-color: #202020;
-  color: white;
-  position: relative;
-  z-index: 30;
-  height: 6rem;
-  border-bottom-left-radius: 0.5rem;
-  border-bottom-right-radius: 0.5rem;
-}
-
-.info-character::before {
-  content: "";
-  background-color: transparent;
-  width: 100%;
-  height: 100%;
-  position: absolute;
-  left: 0;
-  bottom: 100%;
-  z-index: -1;
-  transition: color 0.01s ease, transform 0.4s;
-  border-bottom-left-radius: 0.5rem;
-  border-bottom-right-radius: 0.5rem;
-}
-
-.character:hover img {
-  transform: scale(1.05);
-}
-
-.character:hover .info-character::before {
-  background-color: #e62429;
-  transform: translate3d(0, 100%, 0);
-}
-
-.selected-container {
-  display: flex;
-  flex-direction: column;
-  margin-left: 4rem;
-  gap: 3rem;
-}
-
 h2 {
   font-size: 1.2rem;
   text-transform: uppercase;
   font-weight: 900;
 }
 
-.info-select {
-  height: auto;
+.choose-char {
+  display: grid;
+  grid-template-columns: 70% 30%;
+}
+
+.selected-container {
+  display: flex;
+  flex-direction: column;
+  padding-inline: 1rem;
+  height: 100%;
+  gap: 2rem;
+}
+
+.btn-selected {
+  position: fixed;
+  bottom: 1rem;
+  right: 1rem;
+  border-radius: 50%;
+  transition: 0.3s;
+  display: none;
+  z-index: 100;
+}
+
+.btn-selected:hover {
+  transform: scale(1.1);
 }
 
 @media (max-width: 900px) {
@@ -304,6 +186,16 @@ h2 {
   }
   h1 {
     text-align: center;
+  }
+  .choose-char {
+    display: flex;
+    flex-direction: column;
+  }
+  .choose-char > .selected-container {
+    display: none;
+  }
+  .btn-selected {
+    display: block;
   }
 }
 

@@ -12,7 +12,7 @@ const props = defineProps<{
 
 <style scoped>
 button {
-  padding: 0.5rem 1rem;
+  padding: 0.5rem;
   font-weight: bold;
   text-transform: uppercase;
   border-radius: 0.7rem;

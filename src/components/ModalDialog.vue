@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import IconClose from "./IconClose.vue";
 
-const props = defineProps<{
+defineProps<{
   show: boolean;
-  noClose: { type: Boolean; default: false };
+  noClose: boolean;
 }>();
 
 const emit = defineEmits<{
@@ -18,7 +18,7 @@ const emit = defineEmits<{
         <button v-if="!noClose" @click="$emit('onClose')" class="close">
           <IconClose />
         </button>
-        <slot></slot>
+        <slot class="slot"></slot>
       </section>
     </main>
   </Transition>
