@@ -39,7 +39,7 @@ const emit = defineEmits(["closeAlertEmit"]);
   height: 60px;
   margin: 0;
   color: black;
-  z-index: 1000;
+  z-index: 2000;
 }
 
 .alert-content {
@@ -102,6 +102,17 @@ const emit = defineEmits(["closeAlertEmit"]);
 @keyframes progress {
   100% {
     right: 100%;
+  }
+}
+
+@media (max-width: 900px) {
+  .alert {
+    top: 0;
+    right: 0;
+    left: 0;
+    border-radius: 0;
+    height: auto;
+    padding: 1rem;
   }
 }
 </style>

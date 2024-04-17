@@ -1,39 +1,19 @@
 <script setup lang="ts">
-const navLinks = [
-  ["Home", "/"],
-  ["About", "/about"],
-]
+const date = new Date().getFullYear();
 </script>
 
 <template>
   <footer>
-    <nav>
-      <ul>
-        <li v-for="[content, uri] in navLinks">
-          <a :href="uri">{{ content }}</a>
-        </li>
-      </ul>
-    </nav>
+    <p>&copy; {{ date }} Marvel Guess Who</p>
   </footer>
 </template>
 
 <style scoped>
-nav {
-  display: flex;
-  justify-content: center;
-}
-
-a {
-  display: block;
-  text-decoration: none;
-  padding: 1.5rem;
+footer {
+  background-color: #202020;
   color: white;
-  font-size: 1rem;
-}
-
-ul {
-  display: flex;
-  list-style: none;
-  gap: 2rem;
+  text-align: center;
+  text-transform: uppercase;
+  padding: 1rem;
 }
 </style>

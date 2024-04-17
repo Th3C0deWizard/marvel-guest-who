@@ -13,6 +13,7 @@ import IconGuess from "@/components/IconGuess.vue";
 import IconCrossOut from "@/components/IconCrossOut.vue";
 import Chat from "@/components/Chat.vue";
 import Alert from "@/components/Alert.vue";
+import IconChat from "@/components/IconChat.vue";
 
 const characters = ref<Array<SimpleCharacter>>([]);
 const infoChar = ref<Character | undefined>();
@@ -20,7 +21,7 @@ const selectedChar = ref<number>();
 const loading = ref(true);
 const openModal = ref(false);
 const openWinModal = ref(false);
-const chatActive = ref(false);
+const showChat = ref(false);
 const chatHistory = ref<Array<ChatMessageType>>([]);
 const myTurn = ref(false);
 const answering = ref(false);
@@ -132,6 +133,10 @@ const openAlert = (title: string, text: string) => {
 
 const closeAlert = () => {
   alert.show = false;
+};
+
+const closeChat = () => {
+  showChat.value = false;
 };
 
 const guessAction = (id: number) => {
@@ -281,6 +286,14 @@ const chatAction = (message: string) => {
         <button @click="store.socket?.disconnect()">OK</button>
       </div>
     </ModalDialog>
+    <ModalDialog :show="showChat" @onClose="closeChat">
+      <Chat :active="myTurn || answering" :chatHistory @onChat="chatAction" />
+    </ModalDialog>
+    <Transition>
+      <button class="btn-chat">
+        <IconChat @click="showChat = !showChat" />
+      </button>
+    </Transition>
   </main>
 </template>
 
@@ -292,6 +305,10 @@ const chatAction = (message: string) => {
   background: white;
   color: black;
   height: 86.3vh;
+  .loader {
+    margin-left: 46%;
+    margin-top: 5rem;
+  }
 }
 
 header {
@@ -449,6 +466,43 @@ button:hover {
   gap: 1rem;
   padding: 1rem;
   color: black;
+}
+
+.btn-chat {
+  position: fixed;
+  bottom: 1rem;
+  right: 1rem;
+  background-color: #f43138;
+  border: none;
+  border-radius: 50%;
+  padding: 1rem;
+  cursor: pointer;
+  transition: 0.3s;
+  display: none;
+  z-index: 100;
+}
+
+.btn-chat:hover {
+  scale: 1.05;
+}
+
+@media (max-width: 900px) {
+  .select {
+    padding: 2rem 1rem;
+  }
+  h1 {
+    text-align: center;
+  }
+  .board-char {
+    display: flex;
+    flex-direction: column;
+  }
+  .board-char :nth-child(2) {
+    display: none;
+  }
+  .btn-chat {
+    display: block;
+  }
 }
 
 .v-enter-active,

@@ -298,6 +298,15 @@ h2 {
   height: auto;
 }
 
+@media (max-width: 900px) {
+  .select {
+    padding: 2rem 1rem;
+  }
+  h1 {
+    text-align: center;
+  }
+}
+
 .modal-content {
   color: black;
 }

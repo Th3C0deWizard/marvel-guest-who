@@ -25,18 +25,20 @@ const onSend = () => {
     <div class="chat-container">
       <ChatMessage v-for="{ message, itsMe } in chatHistory" :message :itsMe />
     </div>
-    <div class="input-container">
+    <form class="input-container" v-on:submit.prevent="onSend">
       <input :disabled="!active" type="text" v-model="message" />
-      <button @click="onSend" :disabled="!active">Send</button>
-    </div>
+      <button :disabled="!active">Send</button>
+    </form>
   </section>
 </template>
 
 <style scoped>
 .chat {
+  display: flex;
+  flex-direction: column;
   margin-left: 2rem;
   width: 100%;
-  height: 75dvh;
+  height: 80dvh;
   border-radius: 0.5rem;
 }
 
@@ -56,7 +58,7 @@ const onSend = () => {
   justify-content: flex-end;
   padding: 1rem;
   gap: 1rem;
-  height: 90%;
+  height: 100%;
   background-color: #202020;
   overflow-y: auto;
 }
@@ -100,5 +102,14 @@ button:hover {
 
 input:disabled {
   cursor: not-allowed;
+}
+
+@media (max-width: 900px) {
+  .chat {
+    margin-left: 0;
+  }
+  .input-container {
+    gap: 0.5rem;
+  }
 }
 </style>

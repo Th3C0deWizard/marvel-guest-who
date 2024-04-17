@@ -1,9 +1,11 @@
 <script setup lang="ts">
-const props = defineProps();
+const props = defineProps<{
+  fontSize?: string;
+}>();
 </script>
 
 <template>
-  <button v-bind="props">
+  <button v-bind="props" :style="{ fontSize: props.fontSize }">
     <slot />
   </button>
 </template>
@@ -11,16 +13,20 @@ const props = defineProps();
 <style scoped>
 button {
   padding: 0.5rem 1rem;
-  font-size: 1.4rem;
   font-weight: bold;
   text-transform: uppercase;
   border-radius: 0.7rem;
   border: none;
   cursor: pointer;
-  background-color: #e62429;
+  background-color: #f43138;
   transition: 0.3s;
 }
+button:disabled {
+  background-color: #911a1e;
+  cursor: not-allowed;
+}
+
 button:hover {
-  background-color: #9f0013;
+  scale: 1.05;
 }
 </style>

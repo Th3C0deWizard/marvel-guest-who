@@ -10,13 +10,23 @@ const openPlayModal = () => {
 const closePlayModal = () => {
   showPlayModal.value = false;
 };
+
+const imgUrl = "/src/assets/Hero";
+const imgExt = ".webp";
+const random = Math.floor(Math.random() * 2);
+const imgSrc = imgUrl + random + imgExt;
 </script>
 
 <template>
-  <section id="hero">
-    <h1>marvel guest who</h1>
-    <p>This is an online multiplayer guess who game about UMC!</p>
-    <Button @click="openPlayModal">Play now</Button>
+  <section
+    id="hero"
+    :style="{
+      'background-image': `linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url(${imgSrc})`,
+    }"
+  >
+    <h1>marvel guess who</h1>
+    <p>This is an online multiplayer guess who game about marvel!</p>
+    <Button @click="openPlayModal" fontSize="1.4rem">Play now</Button>
     <div></div>
   </section>
   <PlayModal :show="showPlayModal" :onClose="closePlayModal" />
@@ -29,8 +39,6 @@ const closePlayModal = () => {
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  background-image: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)),
-    url("../assets/hero.jpeg");
   background-size: cover;
   background-repeat: no-repeat;
   background-position: center;
@@ -38,13 +46,15 @@ const closePlayModal = () => {
 }
 
 h1 {
-  font-size: 3rem;
+  font-size: 4rem;
   text-transform: uppercase;
   font-weight: 900;
+  text-align: center;
 }
 
 p {
-  font-size: 1.2rem;
+  font-size: 1.4rem;
   margin-bottom: 1rem;
+  text-align: center;
 }
 </style>

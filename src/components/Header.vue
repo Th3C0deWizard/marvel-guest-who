@@ -1,7 +1,7 @@
 <script setup lang="ts">
 const navLinks = [
   ["Home", "/"],
-  ["About", "/about"],
+  ["How to play", "#how-to-play"],
 ];
 </script>
 
@@ -46,6 +46,6 @@ li {
 }
 
 li:hover {
-  border-bottom: 2px solid #e62429;
+  border-bottom: 2px solid #f43138;
 }
 </style>

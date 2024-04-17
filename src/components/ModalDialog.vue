@@ -44,27 +44,27 @@ section.container {
   display: flex;
   flex-direction: column;
   background-color: #ffffff;
-  padding: 0.5rem;
+  padding: 0.8rem 1rem;
   border-radius: 2rem;
   max-height: 90%;
   max-width: 90%;
-  overflow-y: auto;
-}
-
-div.container {
-  display: flex;
-  justify-content: right;
-  padding: 0.2rem;
 }
 
 .close {
   display: flex;
-  justify-content: right;
+  margin-left: auto;
   border: none;
   background-color: transparent;
-  padding: 0.5rem;
+  padding-bottom: 0.5rem;
   cursor: pointer;
   color: #e62429;
+  svg {
+    transition: 0.3s;
+  }
+}
+
+.close:hover svg {
+  transform: scale(1.2);
 }
 
 .v-enter-active,

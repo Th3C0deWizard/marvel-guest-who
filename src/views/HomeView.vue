@@ -6,13 +6,10 @@ import About from "../components/About.vue";
 </script>
 
 <template>
-  <Header></Header>
+  <Header />
   <main>
-    <Hero></Hero>
-
-    <About></About>
+    <Hero />
+    <About />
   </main>
-  <Footer></Footer>
+  <Footer />
 </template>
-
-<style scoped></style>
