@@ -11,7 +11,7 @@ const closePlayModal = () => {
   showPlayModal.value = false;
 };
 
-const imgUrl = "/src/assets/Hero";
+const imgUrl = "/assets/Hero";
 const imgExt = ".webp";
 const random = Math.floor(Math.random() * 2);
 const imgSrc = imgUrl + random + imgExt;

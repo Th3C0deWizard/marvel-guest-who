@@ -110,7 +110,7 @@ const sendReady = () => {
       </section>
     </ModalDialog>
     <Transition>
-      <Button class="btn-selected">
+      <Button class="btn-selected" v-if="!loading">
         <IconClick @click="showSelected = !showSelected" />
       </Button>
     </Transition>
@@ -164,6 +164,7 @@ h2 {
   padding-inline: 1rem;
   height: 100%;
   gap: 2rem;
+  overflow-y: auto;
 }
 
 .btn-selected {

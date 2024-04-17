@@ -3,19 +3,19 @@ import AboutCard from "./AboutCard.vue";
 
 const articleContent = [
   {
-    image: "/src/assets/Select.webp",
+    image: "/assets/Select.webp",
     title: "Select character",
     description:
       "Select a character from the panel characters, the opponent does the same.",
   },
   {
-    image: "/src/assets/Question.webp",
+    image: "/assets/Question.webp",
     title: "Ask and answer",
     description:
       "Asks questions about opponent's character to guess the character, and answers the questions about your character.",
   },
   {
-    image: "/src/assets/Guess.webp",
+    image: "/assets/Guess.webp",
     title: "Guess",
     description:
       "Guess the opponent's character with the information provided and win!",

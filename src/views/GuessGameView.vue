@@ -236,7 +236,7 @@ const chatAction = (message: string) => {
       <Chat :active="myTurn || answering" :chatHistory @onChat="chatAction" />
     </ModalDialog>
     <Transition>
-      <Button class="btn-chat">
+      <Button class="btn-chat" v-if="!loading">
         <IconChat @click="showChat = !showChat" />
       </Button>
     </Transition>

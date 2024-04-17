@@ -39,7 +39,7 @@ function onCancel() {
   store.socket?.disconnect();
 }
 
-const imgUrl = "/src/assets/matchmaking";
+const imgUrl = "/assets/matchmaking";
 const imgExt = ".webp";
 const random = Math.floor(Math.random() * 5);
 const imgSrc = imgUrl + random + imgExt;
