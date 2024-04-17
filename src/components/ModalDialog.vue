@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import IconClose from "./IconClose.vue";
 
-const props = defineProps<{
+defineProps<{
   show: boolean;
-  noClose: { type: Boolean; default: false };
+  noClose: boolean;
 }>();
 
 const emit = defineEmits<{

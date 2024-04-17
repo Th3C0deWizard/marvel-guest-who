@@ -13,6 +13,8 @@ import IconGuess from "@/components/IconGuess.vue";
 import IconCrossOut from "@/components/IconCrossOut.vue";
 import Chat from "@/components/Chat.vue";
 import Alert from "@/components/Alert.vue";
+import CharacterBoard from "@/components/CharacterBoard.vue";
+import CharacterInfoModal from "@/components/CharacterInfoModal.vue"
 
 const characters = ref<Array<SimpleCharacter>>([]);
 const infoChar = ref<Character | undefined>();
@@ -166,33 +168,10 @@ const chatAction = (message: string) => {
       <Loading v-if="loading" />
       <Transition>
         <div v-if="!loading" class="board-char">
-          <section class="characters-container">
-            <article
-              class="character"
-              v-for="{ id, name, thumbnail } in characters"
-              :key="id"
-              :id="id.toString()"
-            >
-              <figure>
-                <img
-                  :src="
-                    thumbnail.path +
-                    '/portrait_fantastic.' +
-                    thumbnail.extension
-                  "
-                  :alt="name"
-                />
-              </figure>
-              <div class="info-character">
-                <p>{{ id }}</p>
-                <p>{{ name }}</p>
-              </div>
+          <CharacterBoard :characters>
+            <template v-slot="{ id }">
               <div class="btn-actions">
-                <button
-                  @click="guessAction(id)"
-                  :disabled="myTurn === false"
-                  title="Guess"
-                >
+                <button @click="guessAction(id)" :disabled="myTurn === false" title="Guess">
                   <IconGuess />
                 </button>
                 <button title="Info about character" @click="infoModal(id)">
@@ -202,77 +181,15 @@ const chatAction = (message: string) => {
                   <IconCrossOut />
                 </button>
               </div>
-            </article>
-          </section>
-          <Chat
-            :active="myTurn || answering"
-            :chatHistory
-            @onChat="chatAction"
-          />
+            </template>
+          </CharacterBoard>
+          <Chat :active="myTurn || answering" :chatHistory @onChat="chatAction" />
         </div>
       </Transition>
     </section>
-    <ModalDialog :show="openModal" @onClose="closeModal">
-      <div class="modal-content">
-        <div>
-          <h1>{{ infoChar?.name }}</h1>
-          <figure>
-            <img
-              :src="
-                infoChar?.thumbnail.path +
-                '/portrait_fantastic.' +
-                infoChar?.thumbnail.extension
-              "
-              :alt="infoChar?.name"
-            />
-          </figure>
-          <p>
-            {{
-              infoChar?.description
-                ? infoChar?.description
-                : "Desscription no available"
-            }}
-          </p>
-        </div>
-        <div>
-          <h2>Comics</h2>
-          <ul>
-            <li v-for="comic in infoChar?.comics" :key="comic">
-              {{ comic }}
-            </li>
-          </ul>
-          <h2>Series</h2>
-          <ul>
-            <li v-for="serie in infoChar?.series" :key="serie">
-              {{ serie }}
-            </li>
-          </ul>
-        </div>
-        <div>
-          <h2>Stories</h2>
-          <ul>
-            <li v-for="story in infoChar?.stories" :key="story">
-              {{ story }}
-            </li>
-          </ul>
-        </div>
-        <div>
-          <h2>Events</h2>
-          <ul>
-            <li v-for="event in infoChar?.events" :key="event">
-              {{ event }}
-            </li>
-          </ul>
-        </div>
-      </div>
-    </ModalDialog>
+    <CharacterInfoModal :show="openModal" :character="infoChar" :onClose="closeModal" />
     <Transition>
-      <Alert
-        :title="alert.title"
-        :text="alert.text"
-        v-if="alert.show"
-        @closeAlertEmit="closeAlert"
-      />
+      <Alert :title="alert.title" :text="alert.text" v-if="alert.show" @closeAlertEmit="closeAlert" />
     </Transition>
     <ModalDialog :show="openWinModal" :noClose="true">
       <div class="modal-win-content">
